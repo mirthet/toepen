@@ -1683,21 +1683,128 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         };
     }
 
+    // ========================================
     // STATISTIEKEN-SCHERM
+    // UITKLAPBARE SPELERSKAARTEN
+    // ========================================
 
+    let openProfileId = null;
+
+    // Alle statistieken voor een spelerskaart
+    function playerProfileHTML(playerId) {
+        const s = statsForPlayer(playerId);
+        const d = detailFor(playerId);
+
+        const games = state.history.filter(g =>
+            g.entries.some(e => e.playerId === playerId)
+        );
+
+        const scores = games.map(g =>
+            g.entries.find(e => e.playerId === playerId).points
+        );
+
+        const highest = scores.length
+            ? Math.max(...scores)
+            : '–';
+
+        const eliminated = games.filter(g => {
+            const entry = g.entries.find(
+                e => e.playerId === playerId
+            );
+
+            return entry.points >= g.settings.maxPoints;
+        }).length;
+
+        const percent = s.percent.toFixed(1);
+        const average = s.played
+            ? s.average.toFixed(1)
+            : '–';
+
+        const position = s.played
+            ? d.avgPosition.toFixed(2)
+            : '–';
+
+        return `
+            <div class="toep-card-details">
+
+                <div class="toep-card-highlight">
+                    <div>
+                        <small>Winstpercentage</small>
+                        <strong>${percent}%</strong>
+                    </div>
+
+                    <span class="toep-card-trophy">
+                        🏆
+                    </span>
+                </div>
+
+                <div class="toep-card-progress">
+                    <div
+                        style="width:${Math.min(100, s.percent)}%"
+                    ></div>
+                </div>
+
+                <div class="toep-card-grid">
+
+                    <div class="toep-card-stat">
+                        <strong>${s.played}</strong>
+                        <small>Gespeeld</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${s.won}</strong>
+                        <small>Gewonnen</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${average}</strong>
+                        <small>Gem. eindscore</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${highest}</strong>
+                        <small>Hoogste score</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${eliminated}</strong>
+                        <small>Keer afgevallen</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${d.lastPlace}</strong>
+                        <small>Laatste plaats</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${position}</strong>
+                        <small>Gem. eindpositie</small>
+                    </div>
+
+                    <div class="toep-card-stat">
+                        <strong>${d.longest}</strong>
+                        <small>Langste winstreeks</small>
+                    </div>
+
+                </div>
+            </div>
+        `;
+    }
 
     // ========================================
-    // SPELERSPROFIELEN
+    // SPELERSOVERZICHT
     // ========================================
 
     renderStats = function () {
         const target = $('statsContent');
 
+        if (!target) return;
+
         const games = state.history;
 
-        // Overzicht van alle spelers
         target.innerHTML = `
             <div class="stat-grid">
+
                 <div class="stat-card">
                     <b>${games.length}</b>
                     <small>Afgeronde potjes</small>
@@ -1707,210 +1814,77 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                     <b>${state.players.length}</b>
                     <small>Spelers</small>
                 </div>
+
             </div>
 
             <h2>Spelers</h2>
 
             <p class="muted small">
-                Tik op een speler voor alle statistieken.
+                Tik op een speler om alle statistieken
+                te bekijken.
             </p>
 
-            ${state.players.map(p => {
+            <div class="toep-player-list">
+
+                ${state.players.map(p => {
             const s = statsForPlayer(p.id);
 
+            const open =
+                openProfileId === p.id;
+
             return `
-                    <button
-                        type="button"
-                        class="toep-player-profile-btn"
-                        data-profile="${p.id}"
-                    >
-                        <span class="toep-profile-avatar">
-                            👤
-                        </span>
+                        <div
+                            class="toep-player-card
+                            ${open ? 'is-open' : ''}"
+                            data-player-card="${p.id}"
+                        >
 
-                        <span class="toep-profile-info">
-                            <strong>${escapeHTML(p.name)}</strong>
-                            <small>
-                                ${s.played} gespeeld ·
-                                ${s.won} gewonnen
-                            </small>
-                        </span>
+                            <button
+                                type="button"
+                                class="toep-player-card-header"
+                                data-profile="${p.id}"
+                                aria-expanded="${open}"
+                            >
 
-                        <span class="toep-profile-arrow">
-                            ›
-                        </span>
-                    </button>
-                `;
+                                <span class="toep-player-avatar">
+                                    👤
+                                </span>
+
+                                <span class="toep-player-card-info">
+
+                                    <strong>
+                                        ${escapeHTML(p.name)}
+                                    </strong>
+
+                                    <small>
+                                        ${s.played} gespeeld ·
+                                        ${s.won} gewonnen
+                                    </small>
+
+                                </span>
+
+                                <span class="toep-player-chevron">
+                                    ${open ? '⌃' : '⌄'}
+                                </span>
+
+                            </button>
+
+                            ${open
+                    ? playerProfileHTML(p.id)
+                    : ''}
+
+                        </div>
+                    `;
         }).join('')}
+
+            </div>
         `;
     };
 
     // ========================================
-    // PROFIEL OPENEN
+    // SPELERSPROFIEL OPENEN EN SLUITEN
     // ========================================
 
-    function openPlayerProfile(playerId) {
-        const player = state.players.find(
-            p => p.id === playerId
-        );
-
-        if (!player) return;
-
-        const s = statsForPlayer(playerId);
-        const d = detailFor(playerId);
-
-        const games = state.history.filter(
-            g => g.entries.some(
-                e => e.playerId === playerId
-            )
-        );
-
-        const scores = games.map(
-            g => g.entries.find(
-                e => e.playerId === playerId
-            ).points
-        );
-
-        const highest = scores.length
-            ? Math.max(...scores)
-            : '–';
-
-        const eliminated = games.filter(g => {
-            const e = g.entries.find(
-                e => e.playerId === playerId
-            );
-
-            return e.points >= g.settings.maxPoints;
-        }).length;
-
-        const html = `
-            <div class="toep-profile-overlay"
-                id="toepProfileOverlay">
-
-                <div class="toep-profile-modal"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label="Profiel van ${escapeHTML(player.name)}">
-
-                    <button
-                        type="button"
-                        class="toep-profile-close"
-                        id="closePlayerProfile"
-                        aria-label="Sluiten"
-                    >
-                        ✕
-                    </button>
-
-                    <div class="toep-profile-header">
-                        <div class="toep-profile-big-avatar">
-                            👤
-                        </div>
-
-                        <h2>${escapeHTML(player.name)}</h2>
-
-                        <p>Spelersprofiel</p>
-                    </div>
-
-                    <div class="toep-profile-grid">
-
-                        <div class="toep-profile-stat">
-                            <b>${s.played}</b>
-                            <small>Gespeeld</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${s.won}</b>
-                            <small>Gewonnen</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${s.percent.toFixed(1)}%</b>
-                            <small>Winstpercentage</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${s.average.toFixed(1)}</b>
-                            <small>Gem. eindscore</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${highest}</b>
-                            <small>Hoogste score</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${eliminated}</b>
-                            <small>Keer afgevallen</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${d.lastPlace}</b>
-                            <small>Laatste plaats</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${d.avgPosition
-                ? d.avgPosition.toFixed(2)
-                : '–'}</b>
-                            <small>Gem. eindpositie</small>
-                        </div>
-
-                        <div class="toep-profile-stat">
-                            <b>${d.longest}</b>
-                            <small>Langste winstreeks</small>
-                        </div>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        class="primary toep-profile-done"
-                        id="closePlayerProfileBottom"
-                    >
-                        Sluiten
-                    </button>
-
-                </div>
-            </div>
-        `;
-
-        document.body.insertAdjacentHTML(
-            'beforeend',
-            html
-        );
-
-        const overlay = $('toepProfileOverlay');
-
-        // Sluiten via kruisje of knop
-        const close = () => {
-            overlay.remove();
-            document.removeEventListener(
-                'keydown',
-                escapeHandler
-            );
-        };
-
-        const escapeHandler = event => {
-            if (event.key === 'Escape') close();
-        };
-
-        $('closePlayerProfile').onclick = close;
-        $('closePlayerProfileBottom').onclick = close;
-
-        // Sluiten door op de achtergrond te klikken
-        overlay.addEventListener('click', event => {
-            if (event.target === overlay) close();
-        });
-
-        document.addEventListener(
-            'keydown',
-            escapeHandler
-        );
-
-        $('closePlayerProfile').focus();
-    }
-
-    // Klik op een speler in het overzicht
     $('statsContent').addEventListener('click', event => {
         const button = event.target.closest(
             '[data-profile]'
@@ -1918,16 +1892,32 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
         if (!button) return;
 
-        openPlayerProfile(button.dataset.profile);
+        const playerId = button.dataset.profile;
+
+        // Dezelfde speler opnieuw aanklikken:
+        // profiel dichtklappen.
+        //
+        // Andere speler aanklikken:
+        // vorig profiel sluiten en nieuwe openen.
+
+        openProfileId =
+            openProfileId === playerId
+                ? null
+                : playerId;
+
+        renderStats();
     });
 
-
+    // ========================================
     // HALL OF FAME
+    // ========================================
 
     function topPlayers(players, metric, valid) {
         const candidates = players.filter(valid);
 
-        if (!candidates.length) return '–';
+        if (!candidates.length) {
+            return '–';
+        }
 
         const best = Math.max(
             ...candidates.map(metric)
@@ -1939,7 +1929,9 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             .join(', ');
     }
 
+    // ========================================
     // ONDERLINGE VERGELIJKING
+    // ========================================
 
     function headToHead(a, b) {
         let aWins = 0;
@@ -1966,10 +1958,16 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             }
         }
 
-        return { aWins, bWins, ties };
+        return {
+            aWins,
+            bWins,
+            ties
+        };
     }
 
+    // ========================================
     // KLASSEMENT-SCHERM
+    // ========================================
 
     renderRanking = function () {
         oldRenderRanking();
@@ -1978,20 +1976,42 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
         if (!target) return;
 
-        const all = state.players.map(p => ({
-            ...p,
-            ...statsForPlayer(p.id),
-            ...detailFor(p.id)
-        }));
+        const all = state.players.map(p => {
+            const games = state.history.filter(g =>
+                g.entries.some(e => e.playerId === p.id)
+            );
+
+            const scores = games.map(g =>
+                g.entries.find(
+                    e => e.playerId === p.id
+                ).points
+            );
+
+            return {
+                ...p,
+                ...statsForPlayer(p.id),
+                ...detailFor(p.id),
+
+                highest: scores.length
+                    ? Math.max(...scores)
+                    : null
+            };
+        });
+
+        // ====================================
+        // HALL OF FAME WEERGAVE
+        // ====================================
 
         const records = `
             <div class="panel toep-records">
+
                 <h2>🏅 Hall of Fame</h2>
 
                 <p>
                     <b>Meeste overwinningen:</b>
                     ${clean(topPlayers(
-            all, p => p.won,
+            all,
+            p => p.won,
             p => p.played > 0
         ))}
                 </p>
@@ -1999,16 +2019,20 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                 <p>
                     <b>Beste winpercentage:</b>
                     ${clean(topPlayers(
-            all, p => p.percent,
+            all,
+            p => p.percent,
             p => p.played >= 3
         ))}
-                    <small>(minimaal 3 potjes)</small>
+                    <small>
+                        (minimaal 3 potjes)
+                    </small>
                 </p>
 
                 <p>
                     <b>Langste winstreeks:</b>
                     ${clean(topPlayers(
-            all, p => p.longest,
+            all,
+            p => p.longest,
             p => p.played > 0
         ))}
                 </p>
@@ -2016,7 +2040,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                 <p>
                     <b>Vaakst laatste:</b>
                     ${clean(topPlayers(
-            all, p => p.lastPlace,
+            all,
+            p => p.lastPlace,
             p => p.played > 0
         ))}
                 </p>
@@ -2024,26 +2049,32 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                 <p>
                     <b>Hoogste score:</b>
                     ${clean(topPlayers(
-            all, p => p.highest ?? -1,
-            p => p.played > 0
+            all,
+            p => p.highest,
+            p => p.highest !== null
         ))}
                 </p>
+
             </div>
         `;
 
-        const options = state.players.map(
-            p => `
-                <option value="${p.id}">
-                    ${clean(p.name)}
-                </option>
-            `
-        ).join('');
+        // ====================================
+        // SPELERSVERGELIJKING
+        // ====================================
+
+        const options = state.players.map(p => `
+            <option value="${p.id}">
+                ${clean(p.name)}
+            </option>
+        `).join('');
 
         const comparison = `
             <div class="panel">
+
                 <h2>Spelers vergelijken</h2>
 
                 <div class="toep-compare-row">
+
                     <select id="toepCompareA">
                         ${options}
                     </select>
@@ -2051,11 +2082,14 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                     <select id="toepCompareB">
                         ${options}
                     </select>
+
                 </div>
 
-                <p id="toepCompareResult"
-                   class="muted">
-                </p>
+                <p
+                    id="toepCompareResult"
+                    class="muted"
+                ></p>
+
             </div>
         `;
 
@@ -2064,9 +2098,16 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             records + comparison
         );
 
+        // Standaard twee verschillende spelers
+        // selecteren wanneer mogelijk.
+
         if (state.players.length > 1) {
             $('toepCompareB').selectedIndex = 1;
         }
+
+        // ====================================
+        // VERGELIJKING BEREKENEN
+        // ====================================
 
         function updateComparison() {
             const a = $('toepCompareA').value;
@@ -2075,22 +2116,25 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             if (!a || !b || a === b) {
                 $('toepCompareResult').textContent =
                     'Selecteer twee verschillende spelers.';
+
                 return;
             }
 
             const result = headToHead(a, b);
 
-            const nameA = state.players.find(
+            const playerA = state.players.find(
                 p => p.id === a
-            ).name;
+            );
 
-            const nameB = state.players.find(
+            const playerB = state.players.find(
                 p => p.id === b
-            ).name;
+            );
+
+            if (!playerA || !playerB) return;
 
             $('toepCompareResult').textContent =
-                `${nameA}: ${result.aWins} gewonnen · ` +
-                `${nameB}: ${result.bWins} gewonnen · ` +
+                `${playerA.name}: ${result.aWins} gewonnen · ` +
+                `${playerB.name}: ${result.bWins} gewonnen · ` +
                 `${result.ties} gelijk`;
         }
 
@@ -2107,7 +2151,9 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         updateComparison();
     };
 
+    // ========================================
     // GESCHIEDENIS MET POTJESNAAM
+    // ========================================
 
     renderHistory = function () {
         oldRenderHistory();
@@ -2123,20 +2169,25 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             const element = document.createElement('div');
 
             element.className = 'muted small';
+
             element.textContent = `Potje: ${label}`;
 
             card.querySelector('div')?.prepend(element);
         });
     };
 
+    // ========================================
     // ANIMATIES VOOR MELDINGEN
+    // ========================================
 
     showModal = function (title, message, buttons) {
         oldShowModal(title, message, buttons);
 
         const modal = $('modal');
 
-        modal.classList.remove('toep-alert-animation');
+        modal.classList.remove(
+            'toep-alert-animation'
+        );
 
         if (
             /armoede|afgevallen|winnaar|opgeslagen/i
@@ -2150,7 +2201,9 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         }
     };
 
+    // ========================================
     // STARTSCHERM BIJWERKEN BIJ NAVIGATIE
+    // ========================================
 
     navigate = function (page) {
         oldNavigate(page);
@@ -2160,5 +2213,10 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         }
     };
 
+    // ========================================
+    // INITIALISATIE
+    // ========================================
+
     renderHomeExtras();
+
 })();
