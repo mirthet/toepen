@@ -1443,7 +1443,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                     alt="Nayade-logo"
                     onerror="this.hidden=true"
                 >
-                <b>NAYADE × TOEP!</b>
+                <b>Nayade × TOEP!</b>
             </div>
 
             <h2>Laatste winnaar</h2>
