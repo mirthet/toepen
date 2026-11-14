@@ -1282,11 +1282,14 @@ navigate('home');
 // SERVICE WORKER
 // ============================
 
-if (
-    'serviceWorker' in navigator &&
-    location.protocol.startsWith('http')
-) {
-    navigator.serviceWorker
-        .register('./sw.js')
-        .catch(console.warn);
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('./sw.js', {
+        updateViaCache: 'none'
+    })
+    .then(registration => {
+        // Bij het openen controleren op een nieuwe versie
+        registration.update().catch(console.warn);
+    })
+    .catch(console.warn);
 }
+
