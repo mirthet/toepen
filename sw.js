@@ -1,5 +1,5 @@
 
-const CACHE = 'toep-v4';
+const CACHE = 'toep-v5';
 
 const FILES = [
     './',
@@ -8,9 +8,9 @@ const FILES = [
     './app.js',
     './monetization.js',
     './manifest.webmanifest',
+    './Nayade-1961-jpeg.jpg',
     './icons/icon-192.png',
-    './icons/icon-512.png',
-    './Nayade-1961-jpeg.jpg'
+    './icons/icon-512.png'
 ];
 
 // App installeren en bestanden opslaan

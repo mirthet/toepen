@@ -287,126 +287,91 @@ h2 {
 }
 
 /* ==========================================
-   6. THEMASELECTIE
+   6. THEMASELECTIE - ZES GELIJKE KAARTEN
    ========================================== */
 
 .theme-grid {
     display: grid;
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
 
-.theme {
-    height: 72px;
-    font-size: 13px;
+/* Dezelfde afmetingen en vormgeving voor ieder thema. */
+#themes .theme {
+    width: 100%;
+    height: 82px;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 12px 6px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     border: 2px solid transparent;
+    border-radius: 14px;
+    box-shadow: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 750;
     text-align: center;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+    text-shadow: none;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
-.theme.selected {
-    border-color: var(--text);
+#themes .theme[data-color="purple"] {
+    background-image: linear-gradient(135deg, #8645d6, #21132c);
 }
 
-/* PAARS */
-
-.theme[data-color="purple"] {
-    background: linear-gradient(
-        135deg,
-        #8645d6,
-        #21132c
-    );
+#themes .theme[data-color="blue"] {
+    background-image: linear-gradient(135deg, #3a9cfb, #112440);
 }
 
-/* BLAUW */
-
-.theme[data-color="blue"] {
-    background: linear-gradient(
-        135deg,
-        #3a9cfb,
-        #112440
-    );
+#themes .theme[data-color="green"] {
+    background-image: linear-gradient(135deg, #3cb678, #10291d);
 }
 
-/* GROEN */
-
-.theme[data-color="green"] {
-    background: linear-gradient(
-        135deg,
-        #3cb678,
-        #10291d
-    );
+#themes .theme[data-color="red"] {
+    background-image: linear-gradient(135deg, #e75b65, #321a23);
 }
 
-/* ROOD */
-
-.theme[data-color="red"] {
-    background: linear-gradient(
-        135deg,
-        #e75b65,
-        #321a23
-    );
+#themes .theme[data-color="nayade"] {
+    background-color: #4169d1;
+    background-image:
+        linear-gradient(rgba(20, 40, 90, .15), rgba(20, 40, 90, .35)),
+        url("./Nayade-1961-jpeg.jpg");
+    color: #ffd447;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, .85);
 }
 
-/* LICHT */
-
-.theme[data-color="light"] {
-    background: linear-gradient(
-        135deg,
-        #e4d8ff,
-        #afa4d6
-    );
+#themes .theme[data-color="light"] {
+    background-image: linear-gradient(135deg, #e4d8ff, #afa4d6);
     color: #16121e;
 }
 
-/* ==========================================
-   NAYADE THEMAKNOP MET LOGO
-   ========================================== */
-
-#themes .theme[data-color="nayade"] {
-    background-color: #4169D1;
-
-    background-image:
-        linear-gradient(
-            rgba(20, 40, 90, 0.25),
-            rgba(20, 40, 90, 0.45)
-        ),
-        url("./Nayade-1961-jpeg.jpg");
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    color: #FFD447;
-    font-size: 14px;
-    font-weight: 800;
-
-    text-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.9);
-
-    height: 90px;
-    padding: 10px;
-
-    align-items: flex-end;
-    justify-content: center;
-
-    border: 2px solid #FFD447;
-    border-radius: 12px;
+#themes .theme.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(153, 82, 234, .25);
 }
 
-/* GESELECTEERD NAYADE THEMA */
-
 #themes .theme[data-color="nayade"].selected {
-    border: 3px solid #FFD447;
+    border-color: #ffd447;
+    box-shadow: 0 0 0 3px rgba(255, 212, 71, .3);
+}
 
-    box-shadow:
-        0 0 0 3px rgba(255, 212, 71, 0.35);
+@media (hover: hover) {
+    #themes .theme:hover { transform: translateY(-2px); }
+}
+
+@media (max-width: 360px) {
+    .theme-grid { gap: 8px; }
+    #themes .theme { height: 76px; padding: 10px 4px; font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #themes .theme { transition: none; }
 }
 
 /* ==========================================

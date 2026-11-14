@@ -237,7 +237,7 @@ function renderSettings() {
             blue: 'Blauw',
             green: 'Groen',
             red: 'Rood',
-            nayade: 'Nayade💙💛',
+            nayade: 'Nayade 💙💛',
             light: 'Licht'
         })[t]}
         </button>
@@ -1302,7 +1302,6 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     const oldNavigate = navigate;
     const oldRenderGame = renderGame;
     const oldRenderSettings = renderSettings;
-    const oldRenderStats = renderStats;
     const oldRenderRanking = renderRanking;
     const oldRenderHistory = renderHistory;
     const oldShowModal = showModal;
@@ -1439,7 +1438,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         panel.innerHTML = `
             <div class="nayade-mark">
                 <img
-                    src="Nayade-1961-jpeg.jpg"
+                    src="./Nayade-1961-jpeg.jpg"
                     alt="Nayade-logo"
                     onerror="this.hidden=true"
                 >

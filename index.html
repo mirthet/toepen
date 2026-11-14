@@ -1,41 +1,307 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#191425">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="TOEP!">
-  <meta name="description" content="Houd scores, uitslagen en statistieken van Toepen bij.">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="style.css">
-  <title>TOEP!</title>
-</head>
-<body>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+  <meta content="#191425" name="theme-color"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="TOEP!" name="apple-mobile-web-app-title"/>
+  <meta content="Houd scores, uitslagen en statistieken van Toepen bij." name="description"/>
+  <link href="manifest.webmanifest" rel="manifest"/>
+  <link href="icons/icon-192.png" rel="apple-touch-icon"/>
+  <link href="style.css" rel="stylesheet"/>
+  <title>
+   TOEP!
+  </title>
+ </head>
+ <body>
   <div id="app">
-    <header class="topbar"><button id="homeBtn" class="brand" type="button">♠ TOEP!</button></header>
-    <main>
-      <section class="page active" id="page-home">
-        <div class="hero"><span class="hero-icon">♠ ♥ ♣ ♦</span><h1>TOEP!</h1></div>
-        <div class="stack"><button class="primary large" id="newGameBtn">▶ Nieuw potje</button><button id="resumeBtn" class="hidden">Hervat potje</button><button data-page="history">Potjes & geschiedenis</button><button data-page="stats">Statistieken</button><button data-page="ranking">Klassement</button><button data-page="settings">Instellingen</button><button data-page="premium">Advertentievrij · €3,99</button></div>
-      </section>
-      <section class="page" id="page-new"><h1>Nieuw potje</h1><p class="muted">Kies bestaande spelers of voeg nieuwe toe.</p><div id="playerSelect" class="stack"></div><form id="addPlayerForm" class="inline-form"><input id="newPlayerName" maxlength="32" placeholder="Nieuwe speler" required><button type="submit">Toevoegen</button></form><button class="primary wide" id="startGameBtn">Start potje</button></section>
-      <section class="page" id="page-game"><div class="between"><h1>Scorebord</h1><span class="chip" id="gameLimit"></span></div><p class="muted" id="gameHint"></p><div id="scoreboard" class="stack"></div><div class="actions"><button id="undoBtn">↶ Undo</button><button id="resetGameBtn">Reset</button><button class="primary" id="endGameBtn">Eindig potje</button></div></section>
-      <section class="page" id="page-settings"><h1>Instellingen</h1><form id="settingsForm" class="stack"><div class="panel"><h2>Spelregels</h2><label>Maximaal aantal strafpunten<input id="maxPoints" type="number" min="1" max="999" required></label><label>Armoede: punten vóór afvallen<input id="povertyOffset" type="number" min="0" max="999" required></label><label>Beginstand<input id="startPoints" type="number" min="0" max="999" required></label><label>Standaard strafpunten per verloren ronde<input id="penaltyPoints" type="number" min="1" max="999" required></label><label>Scoreverwerking<select id="scoreMode"><option value="manual">Handmatig + / −</option><option value="round">Ronde: winnaar kiezen</option></select></label></div><div class="panel"><h2>Kleurenthema</h2><div id="themes" class="theme-grid"></div></div><button type="submit" class="primary wide">Instellingen opslaan</button><button id="restoreSettings" type="button">Standaardwaarden herstellen</button></form><p class="muted small">Aanpassingen gelden vanaf het volgende potje. Lopende potjes behouden hun eigen spelregels.</p><button data-page="premium" class="wide">♛ Naar advertentievrij · €3,99</button></section>
-      <section class="page" id="page-ranking"><h1>Klassement</h1><p class="muted">Rangschikking op gewonnen potjes.</p><div id="rankingContent" class="stack"></div><div class="ad-placeholder" data-ad-slot="ranking" aria-label="Toekomstige advertentieruimte"><small>ADVERTENTIE · voorbeeldruimte</small><p>Hier kan later een kleine banner verschijnen.</p></div></section>
-      <section class="page" id="page-stats"><h1>Statistieken</h1><div id="statsContent" class="stack"></div><div class="ad-placeholder" data-ad-slot="stats" aria-label="Toekomstige advertentieruimte"><small>ADVERTENTIE · voorbeeldruimte</small><p>Hier kan later een kleine banner verschijnen.</p></div></section>
-      <section class="page" id="page-history"><h1>Geschiedenis</h1><div id="historyContent" class="stack"></div><div class="panel export"><h2>Back-up</h2><p class="muted small">Exporteer een kopie van alle gegevens. Dit is belangrijk: lokale gegevens kunnen verloren gaan als browser- of appgegevens worden gewist.</p><button id="exportBtn">Exporteer JSON</button><label class="file-label">Importeer JSON<input id="importInput" type="file" accept="application/json,.json"></label></div></section>
-      <section class="page" id="page-premium">
-        <div class="premium-hero"><span class="premium-icon">♛</span><h1>TOEP! Advertentievrij</h1><p class="muted">Eenmalig betalen. Geen abonnement.</p><div class="premium-price">€3,99</div></div>
-        <div class="panel stack"><div>✓ Alle huidige functies blijven gratis</div><div>✓ Geen banners en geen schermvullende reclame</div><div>✓ Eenmalige aankoop per appwinkel-account</div><div>✓ Aankoop herstellen via dezelfde appwinkel</div></div>
-        <div class="stack premium-actions"><div id="premiumState" class="info-box" role="status">Deze proefversie bevat nog geen betaalfunctie.</div><button class="primary wide" id="buyPremiumBtn" type="button">Ontgrendel voor €3,99</button><button class="wide" id="restorePremiumBtn" type="button">Herstel aankoop</button><p class="muted small">Deze knoppen zijn voorbereid, maar voeren in de webdemo geen betaling uit. Echte aankopen komen later via Google Play Billing en Apple StoreKit. De €3,99 is een beoogde winkelprijs.</p></div>
-      </section>
-    </main>
-    <nav class="bottomnav" aria-label="Navigatie"><button data-page="home">⌂<span>Home</span></button><button data-page="game">♠<span>Spelen</span></button><button data-page="ranking">★<span>Klassement</span></button><button data-page="stats">▥<span>Stats</span></button><button data-page="settings">⚙<span>Instellingen</span></button></nav>
+   <header class="topbar">
+    <button class="brand" id="homeBtn" type="button">
+     &spades; TOEP!
+    </button>
+   </header>
+   <main>
+    <section class="page active" id="page-home">
+     <div class="hero">
+      <span class="hero-icon">
+       &spades; &hearts; &clubs; &diams;
+      </span>
+      <h1>
+       TOEP!
+      </h1>
+     </div>
+     <div class="stack">
+      <button class="primary large" id="newGameBtn">
+       ▶ Nieuw potje
+      </button>
+      <button class="hidden" id="resumeBtn">
+       Hervat potje
+      </button>
+      <button data-page="history">
+       Potjes &amp; geschiedenis
+      </button>
+      <button data-page="stats">
+       Statistieken
+      </button>
+      <button data-page="ranking">
+       Klassement
+      </button>
+      <button data-page="settings">
+       Instellingen
+      </button>
+      <button data-page="premium">
+       Advertentievrij &middot; &euro;3,99
+      </button>
+     </div>
+    </section>
+    <section class="page" id="page-new">
+     <h1>
+      Nieuw potje
+     </h1>
+     <p class="muted">
+      Kies bestaande spelers of voeg nieuwe toe.
+     </p>
+     <div class="stack" id="playerSelect">
+     </div>
+     <form class="inline-form" id="addPlayerForm">
+      <input id="newPlayerName" maxlength="32" placeholder="Nieuwe speler" required=""/>
+      <button type="submit">
+       Toevoegen
+      </button>
+     </form>
+     <button class="primary wide" id="startGameBtn">
+      Start potje
+     </button>
+    </section>
+    <section class="page" id="page-game">
+     <div class="between">
+      <h1>
+       Scorebord
+      </h1>
+      <span class="chip" id="gameLimit">
+      </span>
+     </div>
+     <p class="muted" id="gameHint">
+     </p>
+     <div class="stack" id="scoreboard">
+     </div>
+     <div class="actions">
+      <button id="undoBtn">
+       &curvearrowleft; Undo
+      </button>
+      <button id="resetGameBtn">
+       Reset
+      </button>
+      <button class="primary" id="endGameBtn">
+       Eindig potje
+      </button>
+     </div>
+    </section>
+    <section class="page" id="page-settings">
+     <h1>
+      Instellingen
+     </h1>
+     <form class="stack" id="settingsForm">
+      <div class="panel">
+       <h2>
+        Spelregels
+       </h2>
+       <label>
+        Maximaal aantal strafpunten
+        <input id="maxPoints" max="999" min="1" required="" type="number"/>
+       </label>
+       <label>
+        Armoede: punten v&oacute;&oacute;r afvallen
+        <input id="povertyOffset" max="999" min="0" required="" type="number"/>
+       </label>
+       <label>
+        Beginstand
+        <input id="startPoints" max="999" min="0" required="" type="number"/>
+       </label>
+       <label>
+        Standaard strafpunten per verloren ronde
+        <input id="penaltyPoints" max="999" min="1" required="" type="number"/>
+       </label>
+       <label>
+        Scoreverwerking
+        <select id="scoreMode">
+         <option value="manual">
+          Handmatig + / &minus;
+         </option>
+         <option value="round">
+          Ronde: winnaar kiezen
+         </option>
+        </select>
+       </label>
+      </div>
+      <div class="panel">
+       <h2>
+        Kleurenthema
+       </h2>
+       <div class="theme-grid" id="themes">
+       </div>
+      </div>
+      <button class="primary wide" type="submit">
+       Instellingen opslaan
+      </button>
+      <button id="restoreSettings" type="button">
+       Standaardwaarden herstellen
+      </button>
+     </form>
+     <p class="muted small">
+      Aanpassingen gelden vanaf het volgende potje. Lopende potjes behouden hun eigen spelregels.
+     </p>
+     <button class="wide" data-page="premium">
+      ♛ Naar advertentievrij &middot; &euro;3,99
+     </button>
+    </section>
+    <section class="page" id="page-ranking">
+     <h1>
+      Klassement
+     </h1>
+     <p class="muted">
+      Rangschikking op gewonnen potjes.
+     </p>
+     <div class="stack" id="rankingContent">
+     </div>
+     <div aria-label="Toekomstige advertentieruimte" class="ad-placeholder" data-ad-slot="ranking">
+      <small>
+       ADVERTENTIE &middot; voorbeeldruimte
+      </small>
+      <p>
+       Hier kan later een kleine banner verschijnen.
+      </p>
+     </div>
+    </section>
+    <section class="page" id="page-stats">
+     <h1>
+      Statistieken
+     </h1>
+     <div class="stack" id="statsContent">
+     </div>
+     <div aria-label="Toekomstige advertentieruimte" class="ad-placeholder" data-ad-slot="stats">
+      <small>
+       ADVERTENTIE &middot; voorbeeldruimte
+      </small>
+      <p>
+       Hier kan later een kleine banner verschijnen.
+      </p>
+     </div>
+    </section>
+    <section class="page" id="page-history">
+     <h1>
+      Geschiedenis
+     </h1>
+     <div class="stack" id="historyContent">
+     </div>
+     <div class="panel export">
+      <h2>
+       Back-up
+      </h2>
+      <p class="muted small">
+       Exporteer een kopie van alle gegevens. Dit is belangrijk: lokale gegevens kunnen verloren gaan als browser- of appgegevens worden gewist.
+      </p>
+      <button id="exportBtn">
+       Exporteer JSON
+      </button>
+      <label class="file-label">
+       Importeer JSON
+       <input accept="application/json,.json" id="importInput" type="file"/>
+      </label>
+     </div>
+    </section>
+    <section class="page" id="page-premium">
+     <div class="premium-hero">
+      <span class="premium-icon">
+       ♛
+      </span>
+      <h1>
+       TOEP! Advertentievrij
+      </h1>
+      <p class="muted">
+       Eenmalig betalen. Geen abonnement.
+      </p>
+      <div class="premium-price">
+       &euro;3,99
+      </div>
+     </div>
+     <div class="panel stack">
+      <div>
+       &checkmark; Alle huidige functies blijven gratis
+      </div>
+      <div>
+       &checkmark; Geen banners en geen schermvullende reclame
+      </div>
+      <div>
+       &checkmark; Eenmalige aankoop per appwinkel-account
+      </div>
+      <div>
+       &checkmark; Aankoop herstellen via dezelfde appwinkel
+      </div>
+     </div>
+     <div class="stack premium-actions">
+      <div class="info-box" id="premiumState" role="status">
+       Deze proefversie bevat nog geen betaalfunctie.
+      </div>
+      <button class="primary wide" id="buyPremiumBtn" type="button">
+       Ontgrendel voor &euro;3,99
+      </button>
+      <button class="wide" id="restorePremiumBtn" type="button">
+       Herstel aankoop
+      </button>
+      <p class="muted small">
+       Deze knoppen zijn voorbereid, maar voeren in de webdemo geen betaling uit. Echte aankopen komen later via Google Play Billing en Apple StoreKit. De &euro;3,99 is een beoogde winkelprijs.
+      </p>
+     </div>
+    </section>
+   </main>
+   <nav aria-label="Navigatie" class="bottomnav">
+    <button data-page="home">
+     ⌂
+     <span>
+      Home
+     </span>
+    </button>
+    <button data-page="game">
+     &spades;
+     <span>
+      Spelen
+     </span>
+    </button>
+    <button data-page="ranking">
+     &starf;
+     <span>
+      Klassement
+     </span>
+    </button>
+    <button data-page="stats">
+     ▥
+     <span>
+      Stats
+     </span>
+    </button>
+    <button data-page="settings">
+     ⚙
+     <span>
+      Instellingen
+     </span>
+    </button>
+   </nav>
   </div>
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-card"><h2 id="modalTitle"></h2><p id="modalText"></p><div id="modalActions" class="actions"></div></div></div>
-  <script src="monetization.js" defer></script>
-  <script src="app.js" defer></script>
-</body>
+  <div aria-labelledby="modalTitle" aria-modal="true" class="modal hidden" id="modal" role="dialog">
+   <div class="modal-card">
+    <h2 id="modalTitle">
+    </h2>
+    <p id="modalText">
+    </p>
+    <div class="actions" id="modalActions">
+    </div>
+   </div>
+  </div>
+  <script defer="" src="monetization.js">
+  </script>
+  <script defer="" src="app.js">
+  </script>
+ </body>
 </html>
