@@ -17,7 +17,7 @@ const THEMES = [
     'blue',
     'green',
     'red',
-    'orange',
+    'nayade',
     'light'
 ];
 
@@ -237,7 +237,7 @@ function renderSettings() {
             blue: 'Blauw',
             green: 'Groen',
             red: 'Rood',
-            orange: 'Oranje',
+            nayade: 'Nayade💙💛',
             light: 'Licht'
         })[t]}
         </button>
