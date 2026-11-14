@@ -917,3 +917,36 @@ select:focus-visible {
         animation: none;
     }
 }
+
+
+/* =====================================
+   NAYADE LOGO ALS ACHTERGROND THEMAKNOP
+   ===================================== */
+
+button[data-theme-choice="nayade"] {
+    background-image:
+        linear-gradient(
+            rgba(20, 40, 90, 0.25),
+            rgba(20, 40, 90, 0.25)
+        ),
+        url("./Nayade-1961-jepg.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    color: #FFD447;
+    font-weight: bold;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+
+    min-height: 75px;
+    border: 2px solid #FFD447;
+    border-radius: 12px;
+}
+
+/* Extra duidelijke rand wanneer geselecteerd */
+
+button[data-theme-choice="nayade"].selected {
+    border: 3px solid #FFD447;
+    box-shadow: 0 0 0 3px rgba(255, 212, 71, 0.3);
+}
