@@ -8,3 +8,200 @@
 
 /* Verdienmodel: aankoopscherm en DEMO-advertentievakken */
 .premium-hero{text-align:center;padding:34px 10px 26px}.premium-icon{font-size:55px;color:#dfb76b}.premium-price{font-size:49px;font-weight:900;margin-top:12px;letter-spacing:-2px}.premium-actions{margin-top:20px}.info-box{padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel);font-size:14px;color:var(--muted)}.ad-placeholder{margin:28px 0 8px;border:1px dashed var(--border);border-radius:12px;padding:12px;text-align:center;color:var(--muted);background:var(--panel);font-size:12px}.ad-placeholder small{font-weight:750;letter-spacing:1px}.ad-placeholder p{margin:4px 0 0}.ad-placeholder[hidden]{display:none}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+
+
+/* =====================================
+   TOEP! - EXTRA VORMGEVING
+   ===================================== */
+
+.score-controls button {
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 12px;
+}
+
+.score-points {
+    font-size: 30px;
+    min-width: 35px;
+    text-align: center;
+}
+
+.score-row {
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.score-row.toep-poverty {
+    border: 2px solid #e5a100;
+    border-radius: 12px;
+}
+
+.score-row.toep-out {
+    border: 2px solid #e05252;
+    border-radius: 12px;
+}
+
+.toep-game-name {
+    margin: 14px 0;
+}
+
+.toep-game-name input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+#toepCurrentGameName {
+    font-weight: 700;
+    margin: 12px 0;
+}
+
+.toep-home-extras {
+    margin-top: 20px;
+}
+
+.toep-home-extras button {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.toep-compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.toep-compare-row select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 6px;
+    border-radius: 10px;
+}
+
+.toep-records p {
+    margin: 12px 0;
+}
+
+.nayade-mark {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.nayade-mark img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+}
+
+.nayade-mark b {
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* MELDING ANIMATIE */
+
+@keyframes toep-pop {
+    0% {
+        transform: scale(0.96);
+    }
+
+    65% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.toep-alert-animation {
+    animation: toep-pop 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toep-alert-animation {
+        animation: none;
+    }
+}
+
+/* =====================================
+   NAYADE THEMA
+   VERVANGT ORANJE
+   ===================================== */
+
+:root[data-theme="nayade"] {
+    --bg: #4169D1;
+    --text: #FFFFFF;
+    --accent: #FFD447;
+    --accent-text: #1E2A44;
+    --card: #3158B7;
+    --muted: #E5EBFF;
+}
+
+[data-theme="nayade"] body {
+    background: #4169D1;
+    color: #FFFFFF;
+}
+
+[data-theme="nayade"] .panel,
+[data-theme="nayade"] .score-row,
+[data-theme="nayade"] .stat-card,
+[data-theme="nayade"] .history-row,
+[data-theme="nayade"] .rank-row {
+    background-color: #3158B7;
+    color: #FFFFFF;
+}
+
+[data-theme="nayade"] h1,
+[data-theme="nayade"] h2,
+[data-theme="nayade"] h3,
+[data-theme="nayade"] .score-points {
+    color: #FFD447;
+}
+
+[data-theme="nayade"] .muted {
+    color: #E5EBFF;
+}
+
+[data-theme="nayade"] button.primary {
+    background: #FFD447;
+    color: #1E2A44;
+}
+
+[data-theme="nayade"] button.primary:hover {
+    background: #FFE477;
+}
+
+[data-theme="nayade"] .nayade-mark {
+    display: flex;
+}
+
+[data-theme="nayade"] .nayade-mark b {
+    color: #FFD447;
+}
+
+[data-theme="nayade"] .score-row.toep-poverty {
+    border-color: #FFD447;
+}
+
+[data-theme="nayade"] .score-row.toep-out {
+    border-color: #FF7777;
+}
+
+[data-theme="nayade"] .bar-fill {
+    background: #FFD447;
+}
+
+[data-theme="nayade"] .bar-fill.out {
+    background: #FF7777;
+}

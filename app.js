@@ -1293,3 +1293,719 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     .catch(console.warn);
 }
 
+
+/* =============================================
+   TOEP! - UITBREIDINGEN
+   ============================================= */
+
+(() => {
+    const oldStartGame = startGame;
+    const oldNavigate = navigate;
+    const oldRenderGame = renderGame;
+    const oldRenderSettings = renderSettings;
+    const oldRenderStats = renderStats;
+    const oldRenderRanking = renderRanking;
+    const oldRenderHistory = renderHistory;
+    const oldShowModal = showModal;
+
+    const clean = value => escapeHTML(value ?? '');
+
+    // ORANJE VERVANGEN DOOR NAYADE
+
+    const orangeIndex = THEMES.indexOf('orange');
+
+    if (orangeIndex !== -1) {
+        THEMES.splice(orangeIndex, 1, 'nayade');
+    }
+
+    if (state.settings.theme === 'orange') {
+        state.settings.theme = 'nayade';
+        persist();
+    }
+
+    applyTheme();
+
+    // NAAM AAN POTJE TOEVOEGEN
+
+    function addGameNameField() {
+        const start = $('startGameBtn');
+
+        if (!start || $('gameName')) return;
+
+        const field = document.createElement('div');
+
+        field.className = 'panel toep-game-name';
+
+        field.innerHTML = `
+            <label for="gameName">
+                <b>Naam potje (optioneel)</b>
+            </label>
+            <input
+                id="gameName"
+                type="text"
+                maxlength="50"
+                placeholder="Bijv. Nayade-avond"
+            >
+        `;
+
+        start.parentNode.insertBefore(field, start);
+    }
+
+    addGameNameField();
+
+    startGame = function () {
+        const name = $('gameName')?.value.trim() || '';
+
+        oldStartGame();
+
+        if (state.game && !state.game.label) {
+            state.game.label = name;
+            persist();
+            renderGame();
+        }
+
+        if (state.game && $('gameName')) {
+            $('gameName').value = '';
+        }
+    };
+
+    $('startGameBtn').onclick = startGame;
+
+    // OPNIEUW SPELEN MET DEZELFDE SPELERS
+
+    function replayLastGame() {
+        const last = state.history[0];
+
+        if (!last) return;
+
+        if (state.game) {
+            showModal(
+                'Er loopt al een potje',
+                'Rond eerst je huidige potje af.'
+            );
+            return;
+        }
+
+        const ids = last.entries
+            .map(e => e.playerId)
+            .filter(id =>
+                state.players.some(p => p.id === id)
+            );
+
+        if (ids.length < 2) {
+            showModal(
+                'Spelers ontbreken',
+                'Er zijn minimaal twee bestaande spelers nodig.'
+            );
+            return;
+        }
+
+        selectedIds = new Set(ids);
+
+        navigate('new');
+
+        if ($('gameName')) {
+            $('gameName').value = last.label || '';
+        }
+
+        showModal(
+            'Spelers geselecteerd',
+            'Je kunt direct een nieuw potje starten.'
+        );
+    }
+
+    // STARTSCHERM UITBREIDEN
+
+    function renderHomeExtras() {
+        const home = $('page-home');
+
+        if (!home) return;
+
+        let panel = $('toepHomeExtras');
+
+        if (!panel) {
+            panel = document.createElement('section');
+            panel.id = 'toepHomeExtras';
+            panel.className = 'panel toep-home-extras';
+            home.appendChild(panel);
+        }
+
+        const last = state.history[0];
+
+        const winners = last?.entries
+            .filter(e => last.winnerIds.includes(e.playerId))
+            .map(e => e.name)
+            .join(', ');
+
+        panel.innerHTML = `
+            <div class="nayade-mark">
+                <img
+                    src="Nayade-1961-jpeg.jpg"
+                    alt="Nayade-logo"
+                    onerror="this.hidden=true"
+                >
+                <b>NAYADE × TOEP!</b>
+            </div>
+
+            <h2>Laatste winnaar</h2>
+
+            <p>
+                ${winners
+                    ? '🏆 ' + clean(winners)
+                    : 'Nog geen afgeronde potjes'}
+            </p>
+
+            ${last
+                ? `<button id="toepReplay" type="button">
+                       Opnieuw met dezelfde spelers
+                   </button>`
+                : ''}
+        `;
+
+        $('toepReplay')?.addEventListener(
+            'click',
+            replayLastGame
+        );
+    }
+
+    // POTJE STOPPEN OF OPSLAAN
+
+    finishGame = function () {
+        const g = state.game;
+
+        if (!g) return;
+
+        const ordered = [...g.entries].sort(
+            (a, b) => a.points - b.points
+        );
+
+        const lowest = ordered[0].points;
+
+        const tied = ordered.filter(
+            e => e.points === lowest
+        );
+
+        showModal(
+            'Potje beëindigen',
+            'Hoe wil je dit potje afsluiten?',
+            [
+                {
+                    title: 'Terug naar spel',
+                    action: () => {}
+                },
+                {
+                    title: 'Stoppen zonder winnaar',
+                    action: () => {
+                        confirmAction(
+                            'Potje verwijderen?',
+                            'Dit potje wordt volledig verwijderd en telt niet mee voor statistieken.',
+                            () => {
+                                state.game = null;
+                                persist();
+                                navigate('home');
+                            }
+                        );
+                    }
+                },
+                {
+                    title: 'Met winnaar afronden',
+                    primary: true,
+                    action: () => {
+                        showModal(
+                            'Winnaar bevestigen',
+                            `${tied.map(e => e.name).join(', ')} wint met ${lowest} punten.`,
+                            [
+                                {
+                                    title: 'Terug',
+                                    action: finishGame
+                                },
+                                {
+                                    title: 'Opslaan',
+                                    primary: true,
+                                    action: () => {
+                                        state.history.unshift({
+                                            id: g.id,
+                                            date: new Date().toISOString(),
+                                            startedAt: g.startedAt,
+                                            label: g.label || '',
+                                            settings: {
+                                                ...g.settings
+                                            },
+                                            entries: g.entries.map(
+                                                e => ({ ...e })
+                                            ),
+                                            winnerIds: tied.map(
+                                                e => e.playerId
+                                            )
+                                        });
+
+                                        state.game = null;
+
+                                        persist();
+                                        navigate('history');
+
+                                        showModal(
+                                            'Opgeslagen',
+                                            'Het potje telt mee voor de statistieken.'
+                                        );
+                                    }
+                                }
+                            ]
+                        );
+                    }
+                }
+            ]
+        );
+    };
+
+    $('endGameBtn').onclick = finishGame;
+
+    // SCOREBORD UITBREIDEN
+
+    renderGame = function () {
+        oldRenderGame();
+
+        const g = state.game;
+
+        if (!g) return;
+
+        let title = $('toepCurrentGameName');
+
+        if (!title) {
+            title = document.createElement('p');
+            title.id = 'toepCurrentGameName';
+
+            $('scoreboard').parentNode.insertBefore(
+                title,
+                $('scoreboard')
+            );
+        }
+
+        title.textContent = g.label
+            ? `Potje: ${g.label}`
+            : '';
+
+        const rows = $('scoreboard').querySelectorAll(
+            '.score-row'
+        );
+
+        rows.forEach((row, index) => {
+            const e = g.entries[index];
+
+            if (!e) return;
+
+            const out =
+                e.points >= g.settings.maxPoints;
+
+            const poverty =
+                !out &&
+                g.settings.povertyOffset > 0 &&
+                e.points >=
+                    g.settings.maxPoints -
+                    g.settings.povertyOffset;
+
+            row.classList.toggle('toep-out', out);
+
+            row.classList.toggle(
+                'toep-poverty',
+                poverty
+            );
+        });
+    };
+
+    // NAYADE-THEMA IN INSTELLINGEN
+
+    renderSettings = function () {
+        oldRenderSettings();
+
+        const btn = document.querySelector(
+            '[data-theme-choice="nayade"]'
+        );
+
+        if (btn) {
+            btn.textContent = 'Nayade 💙💛';
+        }
+    };
+
+    // EXTRA STATISTIEKEN BEREKENEN
+
+    function detailFor(id) {
+        const games = [...state.history]
+            .filter(g =>
+                g.entries.some(e => e.playerId === id)
+            )
+            .sort(
+                (a, b) =>
+                    new Date(a.date) - new Date(b.date)
+            );
+
+        let streak = 0;
+        let longest = 0;
+        let lastPlace = 0;
+        let positions = 0;
+
+        for (const g of games) {
+            const entry = g.entries.find(
+                e => e.playerId === id
+            );
+
+            const points = entry.points;
+
+            const ordered = g.entries
+                .map(e => e.points)
+                .sort((a, b) => a - b);
+
+            const first =
+                ordered.indexOf(points) + 1;
+
+            const last =
+                ordered.lastIndexOf(points) + 1;
+
+            positions += (first + last) / 2;
+
+            if (points === ordered.at(-1)) {
+                lastPlace++;
+            }
+
+            if (g.winnerIds.includes(id)) {
+                streak++;
+                longest = Math.max(longest, streak);
+            } else {
+                streak = 0;
+            }
+        }
+
+        return {
+            lastPlace,
+            longest,
+            avgPosition: games.length
+                ? positions / games.length
+                : 0
+        };
+    }
+
+    // STATISTIEKEN-SCHERM
+
+    renderStats = function () {
+        oldRenderStats();
+
+        const target = $('statsContent');
+
+        if (!target) return;
+
+        let html = '<h2>Extra statistieken</h2>';
+
+        for (const p of state.players) {
+            const details = detailFor(p.id);
+
+            const games = state.history.filter(
+                g => g.entries.some(
+                    e => e.playerId === p.id
+                )
+            );
+
+            const scores = games.map(
+                g => g.entries.find(
+                    e => e.playerId === p.id
+                ).points
+            );
+
+            const eliminated = games.filter(g => {
+                const e = g.entries.find(
+                    e => e.playerId === p.id
+                );
+
+                return e.points >= g.settings.maxPoints;
+            }).length;
+
+            html += `
+                <div class="panel">
+                    <h3>${clean(p.name)}</h3>
+
+                    <div class="stat-grid">
+                        <div>
+                            <b>${scores.length
+                                ? Math.max(...scores)
+                                : '–'}</b>
+                            <div class="muted small">
+                                Hoogste eindscore
+                            </div>
+                        </div>
+
+                        <div>
+                            <b>${eliminated}</b>
+                            <div class="muted small">
+                                Keer afgevallen
+                            </div>
+                        </div>
+
+                        <div>
+                            <b>${details.lastPlace}</b>
+                            <div class="muted small">
+                                Laatste plaats
+                            </div>
+                        </div>
+
+                        <div>
+                            <b>${details.avgPosition
+                                ? details.avgPosition.toFixed(2)
+                                : '–'}</b>
+                            <div class="muted small">
+                                Gem. eindpositie
+                            </div>
+                        </div>
+
+                        <div>
+                            <b>${details.longest}</b>
+                            <div class="muted small">
+                                Langste winstreeks
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        target.insertAdjacentHTML('beforeend', html);
+    };
+
+    // HALL OF FAME
+
+    function topPlayers(players, metric, valid) {
+        const candidates = players.filter(valid);
+
+        if (!candidates.length) return '–';
+
+        const best = Math.max(
+            ...candidates.map(metric)
+        );
+
+        return candidates
+            .filter(p => metric(p) === best)
+            .map(p => p.name)
+            .join(', ');
+    }
+
+    // ONDERLINGE VERGELIJKING
+
+    function headToHead(a, b) {
+        let aWins = 0;
+        let bWins = 0;
+        let ties = 0;
+
+        for (const g of state.history) {
+            const aa = g.entries.find(
+                e => e.playerId === a
+            );
+
+            const bb = g.entries.find(
+                e => e.playerId === b
+            );
+
+            if (!aa || !bb) continue;
+
+            if (aa.points < bb.points) {
+                aWins++;
+            } else if (bb.points < aa.points) {
+                bWins++;
+            } else {
+                ties++;
+            }
+        }
+
+        return { aWins, bWins, ties };
+    }
+
+    // KLASSEMENT-SCHERM
+
+    renderRanking = function () {
+        oldRenderRanking();
+
+        const target = $('rankingContent');
+
+        if (!target) return;
+
+        const all = state.players.map(p => ({
+            ...p,
+            ...statsForPlayer(p.id),
+            ...detailFor(p.id)
+        }));
+
+        const records = `
+            <div class="panel toep-records">
+                <h2>🏅 Hall of Fame</h2>
+
+                <p>
+                    <b>Meeste overwinningen:</b>
+                    ${clean(topPlayers(
+                        all, p => p.won,
+                        p => p.played > 0
+                    ))}
+                </p>
+
+                <p>
+                    <b>Beste winpercentage:</b>
+                    ${clean(topPlayers(
+                        all, p => p.percent,
+                        p => p.played >= 3
+                    ))}
+                    <small>(minimaal 3 potjes)</small>
+                </p>
+
+                <p>
+                    <b>Langste winstreeks:</b>
+                    ${clean(topPlayers(
+                        all, p => p.longest,
+                        p => p.played > 0
+                    ))}
+                </p>
+
+                <p>
+                    <b>Vaakst laatste:</b>
+                    ${clean(topPlayers(
+                        all, p => p.lastPlace,
+                        p => p.played > 0
+                    ))}
+                </p>
+
+                <p>
+                    <b>Hoogste score:</b>
+                    ${clean(topPlayers(
+                        all, p => p.highest ?? -1,
+                        p => p.played > 0
+                    ))}
+                </p>
+            </div>
+        `;
+
+        const options = state.players.map(
+            p => `
+                <option value="${p.id}">
+                    ${clean(p.name)}
+                </option>
+            `
+        ).join('');
+
+        const comparison = `
+            <div class="panel">
+                <h2>Spelers vergelijken</h2>
+
+                <div class="toep-compare-row">
+                    <select id="toepCompareA">
+                        ${options}
+                    </select>
+
+                    <select id="toepCompareB">
+                        ${options}
+                    </select>
+                </div>
+
+                <p id="toepCompareResult"
+                   class="muted">
+                </p>
+            </div>
+        `;
+
+        target.insertAdjacentHTML(
+            'beforeend',
+            records + comparison
+        );
+
+        if (state.players.length > 1) {
+            $('toepCompareB').selectedIndex = 1;
+        }
+
+        function updateComparison() {
+            const a = $('toepCompareA').value;
+            const b = $('toepCompareB').value;
+
+            if (!a || !b || a === b) {
+                $('toepCompareResult').textContent =
+                    'Selecteer twee verschillende spelers.';
+                return;
+            }
+
+            const result = headToHead(a, b);
+
+            const nameA = state.players.find(
+                p => p.id === a
+            ).name;
+
+            const nameB = state.players.find(
+                p => p.id === b
+            ).name;
+
+            $('toepCompareResult').textContent =
+                `${nameA}: ${result.aWins} gewonnen · ` +
+                `${nameB}: ${result.bWins} gewonnen · ` +
+                `${result.ties} gelijk`;
+        }
+
+        $('toepCompareA').addEventListener(
+            'change',
+            updateComparison
+        );
+
+        $('toepCompareB').addEventListener(
+            'change',
+            updateComparison
+        );
+
+        updateComparison();
+    };
+
+    // GESCHIEDENIS MET POTJESNAAM
+
+    renderHistory = function () {
+        oldRenderHistory();
+
+        const cards = $('historyContent')
+            .querySelectorAll('.history-row');
+
+        cards.forEach((card, i) => {
+            const label = state.history[i]?.label;
+
+            if (!label) return;
+
+            const element = document.createElement('div');
+
+            element.className = 'muted small';
+            element.textContent = `Potje: ${label}`;
+
+            card.querySelector('div')?.prepend(element);
+        });
+    };
+
+    // ANIMATIES VOOR MELDINGEN
+
+    showModal = function (title, message, buttons) {
+        oldShowModal(title, message, buttons);
+
+        const modal = $('modal');
+
+        modal.classList.remove('toep-alert-animation');
+
+        if (
+            /armoede|afgevallen|winnaar|opgeslagen/i
+                .test(title)
+        ) {
+            void modal.offsetWidth;
+
+            modal.classList.add(
+                'toep-alert-animation'
+            );
+        }
+    };
+
+    // STARTSCHERM BIJWERKEN BIJ NAVIGATIE
+
+    navigate = function (page) {
+        oldNavigate(page);
+
+        if (page === 'home') {
+            renderHomeExtras();
+        }
+    };
+
+    renderHomeExtras();
+})();
