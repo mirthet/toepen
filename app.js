@@ -586,52 +586,89 @@ function finishGame() {
     const names = tied.map(e => e.name).join(', ');
 
     showModal(
-        'Potje afronden',
-
-        `Laagste score: ${names} (${best} punten).\n${
-            tied.length === 1
-                ? 'Deze speler wordt als winnaar opgeslagen.'
-                : 'Er is een gedeelde eerste plaats. Beide spelers tellen als winnaar.'
-        }`,
-
+        'Potje beëindigen',
+        'Wil je het potje afronden met een winnaar of stoppen zonder de scores op te slaan?',
         [
             {
-                title: 'Terug',
+                title: 'Terug naar het spel',
                 action: () => {}
             },
-
             {
-                title: 'Opslaan',
-                primary: true,
-
+                title: 'Stoppen zonder winnaar',
                 action: () => {
-                    state.history.unshift({
-                        id: g.id,
-                        date: new Date().toISOString(),
-                        startedAt: g.startedAt,
-                        settings: g.settings,
+                    confirmAction(
+                        'Potje stoppen?',
+                        'Dit potje wordt niet opgeslagen. De scores tellen niet mee voor de statistieken en het klassement.',
+                        () => {
+                            // Lopend potje verwijderen
+                            state.game = null;
 
-                        // De echte score opslaan,
-                        // ook wanneer deze hoger is dan 15.
-                        entries: g.entries.map(e => ({ ...e })),
+                            // Nieuwe situatie opslaan
+                            persist();
 
-                        winnerIds: tied.map(e => e.playerId)
-                    });
+                            // Terug naar startscherm
+                            navigate('home');
 
-                    state.game = null;
-
-                    persist();
-                    navigate('history');
-
+                            showModal(
+                                'Potje gestopt',
+                                'Het potje is beëindigd zonder winnaar. De scores zijn niet meegenomen in de statistieken.'
+                            );
+                        }
+                    );
+                }
+            },
+            {
+                title: 'Afronden met winnaar',
+                primary: true,
+                action: () => {
                     showModal(
-                        'Opgeslagen',
-                        'Het potje is toegevoegd aan je geschiedenis en statistieken.'
+                        'Winnaar bevestigen',
+                        `Laagste score: ${names} (${best} punten).\n${
+                            tied.length === 1
+                                ? 'Deze speler wordt als winnaar opgeslagen.'
+                                : 'Er is een gedeelde eerste plaats. Beide spelers tellen als winnaar.'
+                        }`,
+                        [
+                            {
+                                title: 'Terug',
+                                action: () => finishGame()
+                            },
+                            {
+                                title: 'Opslaan',
+                                primary: true,
+                                action: () => {
+                                    state.history.unshift({
+                                        id: g.id,
+                                        date: new Date().toISOString(),
+                                        startedAt: g.startedAt,
+                                        settings: g.settings,
+                                        entries: g.entries.map(
+                                            e => ({ ...e })
+                                        ),
+                                        winnerIds: tied.map(
+                                            e => e.playerId
+                                        )
+                                    });
+
+                                    state.game = null;
+
+                                    persist();
+                                    navigate('history');
+
+                                    showModal(
+                                        'Opgeslagen',
+                                        'Het potje is toegevoegd aan je geschiedenis en statistieken.'
+                                    );
+                                }
+                            }
+                        ]
                     );
                 }
             }
         ]
     );
 }
+
 
 // ============================
 // STATISTIEKEN BEREKENEN
