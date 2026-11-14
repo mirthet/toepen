@@ -103,7 +103,7 @@ function persist() {
 function showModal(
     title,
     message,
-    buttons = [{ title: 'Oké', action: () => {} }]
+    buttons = [{ title: 'Oké', action: () => { } }]
 ) {
     $('modalTitle').textContent = title;
     $('modalText').textContent = message;
@@ -132,7 +132,7 @@ function confirmAction(title, message, action) {
     showModal(title, message, [
         {
             title: 'Annuleren',
-            action: () => {}
+            action: () => { }
         },
         {
             title: 'Bevestigen',
@@ -233,13 +233,13 @@ function renderSettings() {
             class="theme ${t === state.settings.theme ? 'selected' : ''}"
         >
             ${({
-                purple: 'Paars',
-                blue: 'Blauw',
-                green: 'Groen',
-                red: 'Rood',
-                orange: 'Oranje',
-                light: 'Licht'
-            })[t]}
+            purple: 'Paars',
+            blue: 'Blauw',
+            green: 'Groen',
+            red: 'Rood',
+            orange: 'Oranje',
+            light: 'Licht'
+        })[t]}
         </button>
     `).join('');
 }
@@ -463,7 +463,7 @@ function renderGame() {
         const poverty =
             g.settings.povertyOffset > 0 &&
             e.points >=
-                g.settings.maxPoints - g.settings.povertyOffset &&
+            g.settings.maxPoints - g.settings.povertyOffset &&
             !out;
 
         return `
@@ -477,10 +477,10 @@ function renderGame() {
 
                         <small class="${out ? 'out-text' : 'muted'}">
                             ${out
-                                ? 'Afgevallen'
-                                : poverty
-                                    ? 'Armoede'
-                                    : 'Actief'}
+                ? 'Afgevallen'
+                : poverty
+                    ? 'Armoede'
+                    : 'Actief'}
                         </small>
                     </div>
 
@@ -490,7 +490,7 @@ function renderGame() {
                         </b>
 
                         ${g.settings.scoreMode === 'manual'
-                            ? `
+                ? `
                                 <button data-minus="${e.playerId}">
                                     −
                                 </button>
@@ -499,7 +499,7 @@ function renderGame() {
                                     +
                                 </button>
                             `
-                            : ''}
+                : ''}
                     </div>
                 </div>
 
@@ -507,25 +507,25 @@ function renderGame() {
                     <div
                         class="bar-fill ${out ? 'out' : poverty ? 'poverty' : ''}"
                         style="width:${Math.min(
-                            100,
-                            e.points / g.settings.maxPoints * 100
-                        )}%"
+                    100,
+                    e.points / g.settings.maxPoints * 100
+                )}%"
                     ></div>
                 </div>
             </div>
         `;
     }).join('') +
 
-    (
-        g.settings.scoreMode === 'round'
-            ? `
+        (
+            g.settings.scoreMode === 'round'
+                ? `
                 <div class="panel">
                     <h2>Wie won de ronde?</h2>
 
                     <div class="stack">
                         ${g.entries
-                            .filter(e => e.points < g.settings.maxPoints)
-                            .map(e => `
+                    .filter(e => e.points < g.settings.maxPoints)
+                    .map(e => `
                                 <button data-round-winner="${e.playerId}">
                                     ${escapeHTML(e.name)} won
                                 </button>
@@ -533,8 +533,8 @@ function renderGame() {
                     </div>
                 </div>
             `
-            : ''
-    );
+                : ''
+        );
 
     $('undoBtn').disabled = !g.undo.length;
 }
@@ -591,7 +591,7 @@ function finishGame() {
         [
             {
                 title: 'Terug naar het spel',
-                action: () => {}
+                action: () => { }
             },
             {
                 title: 'Stoppen zonder winnaar',
@@ -623,10 +623,9 @@ function finishGame() {
                 action: () => {
                     showModal(
                         'Winnaar bevestigen',
-                        `Laagste score: ${names} (${best} punten).\n${
-                            tied.length === 1
-                                ? 'Deze speler wordt als winnaar opgeslagen.'
-                                : 'Er is een gedeelde eerste plaats. Beide spelers tellen als winnaar.'
+                        `Laagste score: ${names} (${best} punten).\n${tied.length === 1
+                            ? 'Deze speler wordt als winnaar opgeslagen.'
+                            : 'Er is een gedeelde eerste plaats. Beide spelers tellen als winnaar.'
                         }`,
                         [
                             {
@@ -866,8 +865,8 @@ function renderHistory() {
 
                         <div class="small">
                             ${g.entries.map(e =>
-                                `${escapeHTML(e.name)}: ${e.points}`
-                            ).join(' · ')}
+                `${escapeHTML(e.name)}: ${e.points}`
+            ).join(' · ')}
                         </div>
                     </div>
 
@@ -1286,11 +1285,11 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('./sw.js', {
         updateViaCache: 'none'
     })
-    .then(registration => {
-        // Bij het openen controleren op een nieuwe versie
-        registration.update().catch(console.warn);
-    })
-    .catch(console.warn);
+        .then(registration => {
+            // Bij het openen controleren op een nieuwe versie
+            registration.update().catch(console.warn);
+        })
+        .catch(console.warn);
 }
 
 
@@ -1451,8 +1450,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
             <p>
                 ${winners
-                    ? '🏆 ' + clean(winners)
-                    : 'Nog geen afgeronde potjes'}
+                ? '🏆 ' + clean(winners)
+                : 'Nog geen afgeronde potjes'}
             </p>
 
             ${last
@@ -1491,7 +1490,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             [
                 {
                     title: 'Terug naar spel',
-                    action: () => {}
+                    action: () => { }
                 },
                 {
                     title: 'Stoppen zonder winnaar',
@@ -1601,8 +1600,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                 !out &&
                 g.settings.povertyOffset > 0 &&
                 e.points >=
-                    g.settings.maxPoints -
-                    g.settings.povertyOffset;
+                g.settings.maxPoints -
+                g.settings.povertyOffset;
 
             row.classList.toggle('toep-out', out);
 
@@ -1686,88 +1685,242 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
     // STATISTIEKEN-SCHERM
 
-    renderStats = function () {
-        oldRenderStats();
 
+    // ========================================
+    // SPELERSPROFIELEN
+    // ========================================
+
+    renderStats = function () {
         const target = $('statsContent');
 
-        if (!target) return;
+        const games = state.history;
 
-        let html = '<h2>Extra statistieken</h2>';
-
-        for (const p of state.players) {
-            const details = detailFor(p.id);
-
-            const games = state.history.filter(
-                g => g.entries.some(
-                    e => e.playerId === p.id
-                )
-            );
-
-            const scores = games.map(
-                g => g.entries.find(
-                    e => e.playerId === p.id
-                ).points
-            );
-
-            const eliminated = games.filter(g => {
-                const e = g.entries.find(
-                    e => e.playerId === p.id
-                );
-
-                return e.points >= g.settings.maxPoints;
-            }).length;
-
-            html += `
-                <div class="panel">
-                    <h3>${clean(p.name)}</h3>
-
-                    <div class="stat-grid">
-                        <div>
-                            <b>${scores.length
-                                ? Math.max(...scores)
-                                : '–'}</b>
-                            <div class="muted small">
-                                Hoogste eindscore
-                            </div>
-                        </div>
-
-                        <div>
-                            <b>${eliminated}</b>
-                            <div class="muted small">
-                                Keer afgevallen
-                            </div>
-                        </div>
-
-                        <div>
-                            <b>${details.lastPlace}</b>
-                            <div class="muted small">
-                                Laatste plaats
-                            </div>
-                        </div>
-
-                        <div>
-                            <b>${details.avgPosition
-                                ? details.avgPosition.toFixed(2)
-                                : '–'}</b>
-                            <div class="muted small">
-                                Gem. eindpositie
-                            </div>
-                        </div>
-
-                        <div>
-                            <b>${details.longest}</b>
-                            <div class="muted small">
-                                Langste winstreeks
-                            </div>
-                        </div>
-                    </div>
+        // Overzicht van alle spelers
+        target.innerHTML = `
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <b>${games.length}</b>
+                    <small>Afgeronde potjes</small>
                 </div>
-            `;
-        }
 
-        target.insertAdjacentHTML('beforeend', html);
+                <div class="stat-card">
+                    <b>${state.players.length}</b>
+                    <small>Spelers</small>
+                </div>
+            </div>
+
+            <h2>Spelers</h2>
+
+            <p class="muted small">
+                Tik op een speler voor alle statistieken.
+            </p>
+
+            ${state.players.map(p => {
+            const s = statsForPlayer(p.id);
+
+            return `
+                    <button
+                        type="button"
+                        class="toep-player-profile-btn"
+                        data-profile="${p.id}"
+                    >
+                        <span class="toep-profile-avatar">
+                            👤
+                        </span>
+
+                        <span class="toep-profile-info">
+                            <strong>${escapeHTML(p.name)}</strong>
+                            <small>
+                                ${s.played} gespeeld ·
+                                ${s.won} gewonnen
+                            </small>
+                        </span>
+
+                        <span class="toep-profile-arrow">
+                            ›
+                        </span>
+                    </button>
+                `;
+        }).join('')}
+        `;
     };
+
+    // ========================================
+    // PROFIEL OPENEN
+    // ========================================
+
+    function openPlayerProfile(playerId) {
+        const player = state.players.find(
+            p => p.id === playerId
+        );
+
+        if (!player) return;
+
+        const s = statsForPlayer(playerId);
+        const d = detailFor(playerId);
+
+        const games = state.history.filter(
+            g => g.entries.some(
+                e => e.playerId === playerId
+            )
+        );
+
+        const scores = games.map(
+            g => g.entries.find(
+                e => e.playerId === playerId
+            ).points
+        );
+
+        const highest = scores.length
+            ? Math.max(...scores)
+            : '–';
+
+        const eliminated = games.filter(g => {
+            const e = g.entries.find(
+                e => e.playerId === playerId
+            );
+
+            return e.points >= g.settings.maxPoints;
+        }).length;
+
+        const html = `
+            <div class="toep-profile-overlay"
+                id="toepProfileOverlay">
+
+                <div class="toep-profile-modal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Profiel van ${escapeHTML(player.name)}">
+
+                    <button
+                        type="button"
+                        class="toep-profile-close"
+                        id="closePlayerProfile"
+                        aria-label="Sluiten"
+                    >
+                        ✕
+                    </button>
+
+                    <div class="toep-profile-header">
+                        <div class="toep-profile-big-avatar">
+                            👤
+                        </div>
+
+                        <h2>${escapeHTML(player.name)}</h2>
+
+                        <p>Spelersprofiel</p>
+                    </div>
+
+                    <div class="toep-profile-grid">
+
+                        <div class="toep-profile-stat">
+                            <b>${s.played}</b>
+                            <small>Gespeeld</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${s.won}</b>
+                            <small>Gewonnen</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${s.percent.toFixed(1)}%</b>
+                            <small>Winstpercentage</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${s.average.toFixed(1)}</b>
+                            <small>Gem. eindscore</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${highest}</b>
+                            <small>Hoogste score</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${eliminated}</b>
+                            <small>Keer afgevallen</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${d.lastPlace}</b>
+                            <small>Laatste plaats</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${d.avgPosition
+                ? d.avgPosition.toFixed(2)
+                : '–'}</b>
+                            <small>Gem. eindpositie</small>
+                        </div>
+
+                        <div class="toep-profile-stat">
+                            <b>${d.longest}</b>
+                            <small>Langste winstreeks</small>
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="primary toep-profile-done"
+                        id="closePlayerProfileBottom"
+                    >
+                        Sluiten
+                    </button>
+
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            html
+        );
+
+        const overlay = $('toepProfileOverlay');
+
+        // Sluiten via kruisje of knop
+        const close = () => {
+            overlay.remove();
+            document.removeEventListener(
+                'keydown',
+                escapeHandler
+            );
+        };
+
+        const escapeHandler = event => {
+            if (event.key === 'Escape') close();
+        };
+
+        $('closePlayerProfile').onclick = close;
+        $('closePlayerProfileBottom').onclick = close;
+
+        // Sluiten door op de achtergrond te klikken
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) close();
+        });
+
+        document.addEventListener(
+            'keydown',
+            escapeHandler
+        );
+
+        $('closePlayerProfile').focus();
+    }
+
+    // Klik op een speler in het overzicht
+    $('statsContent').addEventListener('click', event => {
+        const button = event.target.closest(
+            '[data-profile]'
+        );
+
+        if (!button) return;
+
+        openPlayerProfile(button.dataset.profile);
+    });
+
 
     // HALL OF FAME
 
@@ -1838,42 +1991,42 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
                 <p>
                     <b>Meeste overwinningen:</b>
                     ${clean(topPlayers(
-                        all, p => p.won,
-                        p => p.played > 0
-                    ))}
+            all, p => p.won,
+            p => p.played > 0
+        ))}
                 </p>
 
                 <p>
                     <b>Beste winpercentage:</b>
                     ${clean(topPlayers(
-                        all, p => p.percent,
-                        p => p.played >= 3
-                    ))}
+            all, p => p.percent,
+            p => p.played >= 3
+        ))}
                     <small>(minimaal 3 potjes)</small>
                 </p>
 
                 <p>
                     <b>Langste winstreeks:</b>
                     ${clean(topPlayers(
-                        all, p => p.longest,
-                        p => p.played > 0
-                    ))}
+            all, p => p.longest,
+            p => p.played > 0
+        ))}
                 </p>
 
                 <p>
                     <b>Vaakst laatste:</b>
                     ${clean(topPlayers(
-                        all, p => p.lastPlace,
-                        p => p.played > 0
-                    ))}
+            all, p => p.lastPlace,
+            p => p.played > 0
+        ))}
                 </p>
 
                 <p>
                     <b>Hoogste score:</b>
                     ${clean(topPlayers(
-                        all, p => p.highest ?? -1,
-                        p => p.played > 0
-                    ))}
+            all, p => p.highest ?? -1,
+            p => p.played > 0
+        ))}
                 </p>
             </div>
         `;
